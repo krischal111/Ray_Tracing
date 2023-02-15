@@ -27,7 +27,9 @@ hittable_list random_scene() {
     // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
     // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),  -0.4, material_left));
     // world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
-    world.add(make_shared<triangle>(vec3(4,0,0),vec3(4,-4,0),vec3(0,0,-4), material_center));
+    world.add(make_shared<triangle>(vec3(4,0,0),vec3(4,-4,0),vec3(0,0,-10), material_center));
+    world.add(make_shared<triangle>(vec3(4,0,0),vec3(4,-4,0),vec3(0,0,10), material_center));
+    world.add(make_shared<triangle>(vec3(0,0,-10),vec3(0,0,10),vec3(4,0,0), material_center));
     
     return world;
 }
@@ -59,7 +61,7 @@ int main()
 {
     //Image
     const auto aspect_ratio = 3.0 / 2.0;
-    const int img_width = 200;
+    const int img_width = 400;
     const int img_height = static_cast<int>(img_width/aspect_ratio);
     const int samples_per_pixel = 50;
     const int max_depth = 50;
@@ -69,8 +71,8 @@ int main()
     auto world = random_scene();
 
     //Camera
-    point3 lookfrom(26,3,6);
-    point3 lookat(0,2,0);
+    point3 lookfrom(50,50,6);
+    point3 lookat(4,0,0);
     vec3 vup(0,1,0);
     auto dist_to_focus = (lookfrom-lookat).length();
     auto aperture = 1.0;
