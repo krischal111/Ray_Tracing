@@ -113,13 +113,13 @@ bool quad::hit(const ray& r, double t_min, double t_max, hit_record& rec) const 
 bool quad::bounding_box(aabb &output_box) const {
     point3 min, max;
     min = point3(
-        dmin4(v0.x(), v1.x(), v2.x(), v3.x()),
-        dmin4(v0.y(), v1.y(), v2.y(), v3.y()),
-        dmin4(v0.z(), v1.z(), v2.z(), v3.z()));
+        dmin4(v0.x, v1.x, v2.x, v3.x),
+        dmin4(v0.y, v1.y, v2.y, v3.y),
+        dmin4(v0.z, v1.z, v2.z, v3.z));
     max = point3(
-        dmax4(v0.x(), v1.x(), v2.x(), v3.x()),
-        dmax4(v0.y(), v1.y(), v2.y(), v3.y()),
-        dmax4(v0.z(), v1.z(), v2.z(), v3.z()));
+        dmax4(v0.x, v1.x, v2.x, v3.x),
+        dmax4(v0.y, v1.y, v2.y, v3.y),
+        dmax4(v0.z, v1.z, v2.z, v3.z));
     output_box = aabb(min, max);
     return true;
 }

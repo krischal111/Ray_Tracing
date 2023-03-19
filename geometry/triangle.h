@@ -87,26 +87,26 @@ bool triangle::hit(const ray& r, double t_min, double t_max, hit_record& rec) co
 
     //uv mappng
     
-    double den0 =  (v1.y()-v2.y())*(v0.x()-v2.x()) + (v2.x()-v1.x())*(v0.y()-v2.y());
+    double den0 =  (v1.y-v2.y)*(v0.x-v2.x) + (v2.x-v1.x)*(v0.y-v2.y);
     // if(den0<=0.00000001){
-    //     rec.u = 0.333*uv0.x() + 0.333*uv1.x() + 0.333*uv2.x();
-    //     rec.v = 0.333*uv0.y() + 0.333*uv1.y() + 0.333*uv2.y();
+    //     rec.u = 0.333*uv0.x + 0.333*uv1.x + 0.333*uv2.x;
+    //     rec.v = 0.333*uv0.y + 0.333*uv1.y + 0.333*uv2.y;
     //     return true;
     // }
-    // rec.u = 0.333*uv0.x() + 0.333*uv1.x() + 0.333*uv2.x();
-    // rec.v = 0.333*uv0.y() + 0.333*uv1.y() + 0.333*uv2.y();
-    double Baryv0 = ((v1.y()-v2.y())*(P.x()-v2.x()) + (v2.x()-v1.x())*(P.y()-v2.y())) /
-                    ((v1.y()-v2.y())*(v0.x()-v2.x()) + (v2.x()-v1.x())*(v0.y()-v2.y()));
-    double Baryv1 = ((v2.y()-v0.y())*(P.x()-v2.x()) + (v0.x()-v2.x())*(P.y()-v2.y())) /
-                     ((v1.y()-v2.y())*(v0.x()-v2.x()) + (v2.x()-v1.x())*(v0.y()-v2.y()));
+    // rec.u = 0.333*uv0.x + 0.333*uv1.x + 0.333*uv2.x;
+    // rec.v = 0.333*uv0.y + 0.333*uv1.y + 0.333*uv2.y;
+    double Baryv0 = ((v1.y-v2.y)*(P.x-v2.x) + (v2.x-v1.x)*(P.y-v2.y)) /
+                    ((v1.y-v2.y)*(v0.x-v2.x) + (v2.x-v1.x)*(v0.y-v2.y));
+    double Baryv1 = ((v2.y-v0.y)*(P.x-v2.x) + (v0.x-v2.x)*(P.y-v2.y)) /
+                     ((v1.y-v2.y)*(v0.x-v2.x) + (v2.x-v1.x)*(v0.y-v2.y));
     double Baryv2 = 1 - Baryv0 - Baryv1;
-    rec.u = Baryv0*uv0.x() + Baryv1*uv1.x() + Baryv2*uv2.x();
-    rec.v = Baryv0*uv0.y() + Baryv1*uv1.y() + Baryv2*uv2.y();
-    // std::cerr << "v0 = " << v0.x() << " " << v0.y() << " " << v0.z() << std::endl;
-    // std::cerr << "v1 = " << v1.x() << " " << v1.y() << " " << v1.z() << std::endl;
-    // std::cerr << "v2 = " << v2.x() << " " << v2.y() << " " << v2.z() << std::endl;
-    // std::cerr << "P = " << P.x() << " " << P.y() << " " << P.z() << std::endl;
-    // std::cerr << "Numerator = " << ((v1.y()-v2.y())*(P.x()-v2.x()) + (v2.x()-v1.x())*(P.y()-v2.y())) << std::endl;
+    rec.u = Baryv0*uv0.x + Baryv1*uv1.x + Baryv2*uv2.x;
+    rec.v = Baryv0*uv0.y + Baryv1*uv1.y + Baryv2*uv2.y;
+    // std::cerr << "v0 = " << v0.x << " " << v0.y << " " << v0.z << std::endl;
+    // std::cerr << "v1 = " << v1.x << " " << v1.y << " " << v1.z << std::endl;
+    // std::cerr << "v2 = " << v2.x << " " << v2.y << " " << v2.z << std::endl;
+    // std::cerr << "P = " << P.x << " " << P.y << " " << P.z << std::endl;
+    // std::cerr << "Numerator = " << ((v1.y-v2.y)*(P.x-v2.x) + (v2.x-v1.x)*(P.y-v2.y)) << std::endl;
     // std::cerr << "denominator = " << den0 << std::endl;
     // std::cerr << Baryv0 << " " << Baryv1 << " " << Baryv2 << " " << rec.u << " " << rec.v << std::endl;
     
@@ -117,13 +117,13 @@ bool triangle::hit(const ray& r, double t_min, double t_max, hit_record& rec) co
 bool triangle::bounding_box(aabb& output_box) const {
     point3 min, max;
     min = point3(
-        dmin3(v0.x(), v1.x(), v2.x()),
-        dmin3(v0.y(), v1.y(), v2.y()),
-        dmin3(v0.z(), v1.z(), v2.z()));
+        dmin3(v0.x, v1.x, v2.x),
+        dmin3(v0.y, v1.y, v2.y),
+        dmin3(v0.z, v1.z, v2.z));
     max = point3(
-        dmax3(v0.x(), v1.x(), v2.x()),
-        dmax3(v0.y(), v1.y(), v2.y()),
-        dmax3(v0.z(), v1.z(), v2.z()));
+        dmax3(v0.x, v1.x, v2.x),
+        dmax3(v0.y, v1.y, v2.y),
+        dmax3(v0.z, v1.z, v2.z));
     output_box = aabb(min, max);
     return true;
 }

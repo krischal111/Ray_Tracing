@@ -159,9 +159,9 @@ int main(int argc, char** argv)
 
         for (int j = 0; j < img_height; ++j) {
             for (int i = 0; i < img_width; ++i) {
-                uint8_t red   = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].x(), 0.0, 0.999));
-                uint8_t green = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].y(), 0.0, 0.999));
-                uint8_t blue  = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].y(), 0.0, 0.999));
+                uint8_t red   = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].x, 0.0, 0.999));
+                uint8_t green = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].y, 0.0, 0.999));
+                uint8_t blue  = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].y, 0.0, 0.999));
                 j = img_height - j - 1;
                 pixels[j * img_width + i] = SDL_MapRGB(pixelFormat, red, green, blue);
             }

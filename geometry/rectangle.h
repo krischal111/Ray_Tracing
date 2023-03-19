@@ -22,11 +22,11 @@ class xy_rect : public hittable {
 };
 
 bool xy_rect::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
-    auto t = (k-r.origin().z()) / r.direction().z();
+    auto t = (k-r.origin().z) / r.direction().z;
     if (t < t_min || t > t_max)
         return false;
-    auto x = r.origin().x() + t*r.direction().x();
-    auto y = r.origin().y() + t*r.direction().y();
+    auto x = r.origin().x + t*r.direction().x;
+    auto y = r.origin().y + t*r.direction().y;
     if (x < x0 || x > x1 || y < y0 || y > y1)
         return false;
     rec.u = (x-x0)/(x1-x0);

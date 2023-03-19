@@ -21,7 +21,7 @@ color rayColor(const ray& r, const hittable& world, int depth){
     }
 
     vec3 unit_direction = unitVector(r.direction());
-    auto t=0.5*(unit_direction.y()+1.0);
+    auto t=0.5*(unit_direction.y+1.0);
     return (1.0-t)*color(1.0,1.0,1.0)+t*color(0.5,0.7,1.0);
 }
 
