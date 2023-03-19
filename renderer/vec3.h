@@ -62,7 +62,13 @@ union vec3
         double x, y, z;
     };
     struct {
-        double r, g, b;
+        double R, G, B;
+    };
+    struct {
+        double u, v, w;
+    };
+    struct {
+        double a, b, c;
     };
 };
 
