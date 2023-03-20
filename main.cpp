@@ -64,10 +64,12 @@ int main(int argc, char** argv)
     auto world = random_scene();
 
     //Camera 30
-    point3 lookfrom(7, 2, 3);
+    point3 lookfrom(1000,30000,1000);
     point3 lookat(0,0,0);
     vec3 vup(0,1,0);
     camera cam(lookfrom, lookat);
+
+    color background(0.3,0.3,0.3);
 
     static float d2f=10.0f, pwaal=0.1f;
 
@@ -126,13 +128,13 @@ int main(int argc, char** argv)
                 if (event.key.keysym.sym == SDLK_d)
                     cam.rotate(0, -0.04, 0);
                 if (event.key.keysym.sym == SDLK_UP)
-                    cam.dolly(-1);
+                    cam.dolly(-100);
                 if (event.key.keysym.sym == SDLK_DOWN)
-                    cam.dolly(1);
+                    cam.dolly(100);
                 if (event.key.keysym.sym == SDLK_LEFT)
-                    cam.truck(-1);
+                    cam.truck(-100);
                 if (event.key.keysym.sym == SDLK_RIGHT)
-                    cam.truck(1);
+                    cam.truck(100);
             }
         }
 
@@ -147,7 +149,7 @@ int main(int argc, char** argv)
                     auto u = (i + random_double()) / (img_width-1);
                     auto v = (j + random_double()) / (img_height-1);
                     ray r = cam.get_ray(u, v);
-                    render_frame_buffer[i*img_height+j] += rayColor(r, world, max_depth);
+                    render_frame_buffer[i*img_height+j] += rayColor(r, background, world, max_depth);
                 }
             }
         }
