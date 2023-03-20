@@ -24,7 +24,7 @@ DBGCXXFLAGS = -g -O0 -DDEBUG
 RELDIR = bin/release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
-RELCXXFLAGS = -Ofast -DNDEBUG -flto
+RELCXXFLAGS = -Ofast -DNDEBUG -flto -fopenmp
 
 .PHONY: all clean debug prep release remake
 

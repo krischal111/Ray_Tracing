@@ -32,6 +32,7 @@
 #include <SDL_render.h>
 #include <SDL_video.h>
 
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -100,14 +101,13 @@ int main(int argc, char** argv)
 
     uint32_t *pixels;
 
-    color *a;
-    a = (color*)malloc(sizeof(color)*img_height*img_width);
+    color *render_frame_buffer = (color*)malloc(sizeof(color)*img_height*img_width);
 
     std::cout << "P3\n" << img_width << " " << img_height << "\n255\n";
 
     bool done = false;
     while (!done) {
-
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -136,21 +136,24 @@ int main(int argc, char** argv)
             }
         }
 
+#pragma omp parallel
+{
+        #pragma omp for schedule(dynamic)
         for (int j = img_height-1; j >= 0; --j) {
-            std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+            // std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
             for (int i = 0; i < img_width; ++i) {
-                color pixel_color(0, 0, 0);
+                render_frame_buffer[i*img_height+j] = vec3();
                 for (int s = 0; s < samples_per_pixel; ++s) {
                     auto u = (i + random_double()) / (img_width-1);
                     auto v = (j + random_double()) / (img_height-1);
                     ray r = cam.get_ray(u, v);
-                    pixel_color += rayColor(r, world, max_depth);
+                    render_frame_buffer[i*img_height+j] += rayColor(r, world, max_depth);
                 }
-                a[i*img_height+j] = pixel_color/samples_per_pixel;
             }
         }
+}
 
-        int pitch = img_width * 3;
+        int pitch;
         uint32_t format;
         SDL_QueryTexture(texture, &format, NULL, NULL, NULL);
         SDL_LockTexture(texture, NULL, (void**) &pixels, &pitch);
@@ -159,9 +162,9 @@ int main(int argc, char** argv)
 
         for (int j = 0; j < img_height; ++j) {
             for (int i = 0; i < img_width; ++i) {
-                uint8_t red   = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].x, 0.0, 0.999));
-                uint8_t green = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].y, 0.0, 0.999));
-                uint8_t blue  = static_cast<uint8_t>(256.0 * clamp(a[i*img_height+j].y, 0.0, 0.999));
+                uint8_t red   = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].x / samples_per_pixel, 0.0, 0.999));
+                uint8_t green = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].y / samples_per_pixel, 0.0, 0.999));
+                uint8_t blue  = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].y / samples_per_pixel, 0.0, 0.999));
                 j = img_height - j - 1;
                 pixels[j * img_width + i] = SDL_MapRGB(pixelFormat, red, green, blue);
             }
@@ -169,6 +172,8 @@ int main(int argc, char** argv)
 
         SDL_UnlockTexture(texture);
 
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        auto time_diff = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
         ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
@@ -177,6 +182,7 @@ int main(int argc, char** argv)
 
         ImGui::Text("Realtime raytracing");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Text("Last frame took %.0f ms.", static_cast<double>(time_diff)/1000.0);
 
         ImGui::SliderFloat("pwaal", &pwaal, 0.0001f, 3.0f);
         ImGui::SliderFloat("d2f", &d2f, 0.0001f, 1.0f);
@@ -198,7 +204,7 @@ int main(int argc, char** argv)
 
     for (int j = img_height-1; j >= 0; --j) {
         for (int i = 0; i < img_width; ++i) {
-            writeColor(std::cout, a[i*img_height+j], samples_per_pixel);
+            writeColor(std::cout, render_frame_buffer[i*img_height+j], samples_per_pixel);
         }
     }
     std::cerr << std::endl;
