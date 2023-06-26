@@ -64,10 +64,12 @@ int main(int argc, char** argv)
     auto world = random_scene();
 
     //Camera 30
-    point3 lookfrom(7, 2, 3);
+    point3 lookfrom(1000,30000,1000);
     point3 lookat(0,0,0);
     vec3 vup(0,1,0);
     camera cam(lookfrom, lookat);
+
+    color background(0.3,0.3,0.3);
 
     static float d2f=10.0f, pwaal=0.1f;
 
