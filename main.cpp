@@ -43,7 +43,7 @@
 const int SCREEN_HEIGHT = 720;
 const int SCREEN_WIDTH = 1280;
 const double aspect_ratio = 3.0 / 2.0;
-const int img_width = 200;
+const int img_width = 400;
 const int img_height = static_cast<int>(img_width/aspect_ratio);
 
 
@@ -104,6 +104,8 @@ int main(int argc, char** argv)
     uint32_t *pixels;
 
     color *render_frame_buffer = (color*)malloc(sizeof(color)*img_height*img_width);
+    double *n_sampled = (double*) malloc(sizeof(double) * img_height * img_width);
+    bool start_render_anew = false;
 
     std::cout << "P3\n" << img_width << " " << img_height << "\n255\n";
 
@@ -119,22 +121,25 @@ int main(int argc, char** argv)
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
                 done = true;
             if (event.type == SDL_KEYDOWN) {
+                start_render_anew = true;
                 if (event.key.keysym.sym == SDLK_s)
                     cam.rotate(0.04, 0, 0);
-                if (event.key.keysym.sym == SDLK_w)
+                else if (event.key.keysym.sym == SDLK_w)
                     cam.rotate(-0.04, 0, 0);
-                if (event.key.keysym.sym == SDLK_a)
-                    cam.rotate(0, 0.04, 0);
-                if (event.key.keysym.sym == SDLK_d)
-                    cam.rotate(0, -0.04, 0);
-                if (event.key.keysym.sym == SDLK_UP)
-                    cam.dolly(-100);
-                if (event.key.keysym.sym == SDLK_DOWN)
-                    cam.dolly(100);
-                if (event.key.keysym.sym == SDLK_LEFT)
-                    cam.truck(-100);
-                if (event.key.keysym.sym == SDLK_RIGHT)
-                    cam.truck(100);
+                else if (event.key.keysym.sym == SDLK_a)
+                    cam.rotate(0, 0.00, 0.05);
+                else if (event.key.keysym.sym == SDLK_d)
+                    cam.rotate(0, -0.00, -0.05);
+                else if (event.key.keysym.sym == SDLK_UP)
+                    cam.dolly(-1);
+                else if (event.key.keysym.sym == SDLK_DOWN)
+                    cam.dolly(1);
+                else if (event.key.keysym.sym == SDLK_LEFT)
+                    cam.truck(-1);
+                else if (event.key.keysym.sym == SDLK_RIGHT)
+                    cam.truck(1);
+                else
+                    start_render_anew = false;
             }
         }
 
@@ -144,17 +149,22 @@ int main(int argc, char** argv)
         for (int j = img_height-1; j >= 0; --j) {
             // std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
             for (int i = 0; i < img_width; ++i) {
-                render_frame_buffer[i*img_height+j] = vec3();
+                if (start_render_anew) {
+                    render_frame_buffer[i*img_height+j] = vec3();
+                    n_sampled[i*img_height+j] = 0.0;
+                }
                 for (int s = 0; s < samples_per_pixel; ++s) {
                     auto u = (i + random_double()) / (img_width-1);
                     auto v = (j + random_double()) / (img_height-1);
                     ray r = cam.get_ray(u, v);
-                    render_frame_buffer[i*img_height+j] += rayColor(r, background, world, max_depth);
+                    render_frame_buffer[i*img_height+j] += rayColor(r, world, max_depth);
+                    n_sampled[i*img_height+j] += 1.0;
                 }
             }
         }
 }
 
+        start_render_anew = false;
         int pitch;
         uint32_t format;
         SDL_QueryTexture(texture, &format, NULL, NULL, NULL);
@@ -164,9 +174,9 @@ int main(int argc, char** argv)
 
         for (int j = 0; j < img_height; ++j) {
             for (int i = 0; i < img_width; ++i) {
-                uint8_t red   = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].x / samples_per_pixel, 0.0, 0.999));
-                uint8_t green = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].y / samples_per_pixel, 0.0, 0.999));
-                uint8_t blue  = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].y / samples_per_pixel, 0.0, 0.999));
+                uint8_t red   = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].x / n_sampled[i*img_height+j], 0.0, 0.999));
+                uint8_t green = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].y / n_sampled[i*img_height+j], 0.0, 0.999));
+                uint8_t blue  = static_cast<uint8_t>(256.0 * clamp(render_frame_buffer[i*img_height+j].z / n_sampled[i*img_height+j], 0.0, 0.999));
                 j = img_height - j - 1;
                 pixels[j * img_width + i] = SDL_MapRGB(pixelFormat, red, green, blue);
             }
