@@ -40,3 +40,7 @@ make
 ``` shell
 ./bin/release/rt > image.ppm
 ```
+
+<a href="https://github.com/krischal111/Ray_Tracing/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=krischal111/Ray_Tracing" />
+</a>
